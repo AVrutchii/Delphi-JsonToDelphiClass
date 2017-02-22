@@ -1,34 +1,39 @@
 unit FMX.ConstrainedForm;
 
-//  http://stackoverflow.com/a/8044518
+// http://stackoverflow.com/a/8044518
 
 interface
 
 uses
-  System.Classes, System.Types, System.UITypes, FMX.Forms, FMX.Platform, FMX.Types;
+  System.Classes,
+  System.Types,
+  System.UITypes,
+  FMX.Forms,
+  FMX.Platform,
+  FMX.Types;
 
 type
   TFormConstraints = class(TPersistent)
   private
     FMaxHeight: Integer;
-    FMaxLeft: Integer;
-    FMaxWidth: Integer;
-    FMaxTop: Integer;
+    FMaxLeft  : Integer;
+    FMaxWidth : Integer;
+    FMaxTop   : Integer;
     FMinHeight: Integer;
-    FMinLeft: Integer;
-    FMinWidth: Integer;
-    FMinTop: Integer;
+    FMinLeft  : Integer;
+    FMinWidth : Integer;
+    FMinTop   : Integer;
   public
     constructor Create;
   published
     property MaxHeight: Integer read FMaxHeight write FMaxHeight default 0;
-    property MaxLeft: Integer read FMaxLeft write FMaxLeft default 0;
-    property MaxWidth: Integer read FMaxWidth write FMaxWidth default 0;
-    property MaxTop: Integer read FMaxTop write FMaxTop default 0;
+    property MaxLeft  : Integer read FMaxLeft write FMaxLeft default 0;
+    property MaxWidth : Integer read FMaxWidth write FMaxWidth default 0;
+    property MaxTop   : Integer read FMaxTop write FMaxTop default 0;
     property MinHeight: Integer read FMinHeight write FMinHeight default 0;
-    property MinLeft: Integer read FMinLeft write FMinLeft default 0;
-    property MinWidth: Integer read FMinWidth write FMinWidth default 0;
-    property MinTop: Integer read FMinTop write FMinTop default 0;
+    property MinLeft  : Integer read FMinLeft write FMinLeft default 0;
+    property MinWidth : Integer read FMinWidth write FMinWidth default 0;
+    property MinTop   : Integer read FMinTop write FMinTop default 0;
   end;
 
   TConstrainedForm = class(TCustomForm)
@@ -52,14 +57,14 @@ type
     property ClientWidth;
     property Left;
     property Top;
-//    property Margins;
+    // property Margins;
     property Position default TFormPosition.DefaultPosOnly;
     property Width;
     property Height;
-//    property ShowActivated default True;
-//    property StaysOpen default True;
+    // property ShowActivated default True;
+    // property StaysOpen default True;
     property Transparency;
-//    property TopMost default False;
+    // property TopMost default False;
     property Visible;
     property WindowState default TWindowState.wsNormal;
     property OnCreate;
@@ -74,7 +79,7 @@ type
     property ActiveControl;
     property StyleLookup;
     property OnPaint;
-    //  XE7
+    // XE7
     property Padding;
     property FormFactor;
     property OnKeyDown;

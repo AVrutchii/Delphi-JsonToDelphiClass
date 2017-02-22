@@ -3,15 +3,43 @@
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Layouts, FMX.Memo, System.Json, Rest.Json, FMX.TreeView, TypInfo, RTTI,
-  regularexpressions, generics.collections, Pkg.Json.Mapper, NetEncoding,
-  FMX.Menus, FMX.Controls.Presentation, FMX.Edit, FMX.ConstrainedForm, REST.Client,
-  uUpdate, System.Threading, uGitHub, FMX.Objects, uUpdateForm, SyncObjs,
+  System.SysUtils,
+  System.Types,
+  System.UITypes,
+  System.Classes,
+  System.Variants,
+  FMX.Types,
+  FMX.Controls,
+  FMX.Forms,
+  FMX.Graphics,
+  FMX.Dialogs,
+  FMX.StdCtrls,
+  FMX.Layouts,
+  FMX.Memo,
+  System.Json,
+  Rest.Json,
+  FMX.TreeView,
+  TypInfo,
+  RTTI,
+  regularexpressions,
+  generics.collections,
+  Pkg.Json.Mapper,
+  NetEncoding,
+  FMX.Menus,
+  FMX.Controls.Presentation,
+  FMX.Edit,
+  FMX.ConstrainedForm,
+  Rest.Client,
+  uUpdate,
+  System.Threading,
+  uGitHub,
+  FMX.Objects,
+  uUpdateForm,
+  SyncObjs,
   FMX.ScrollBox;
 
-const JsonValidatorUrl = 'http://jsonlint.com';
+const
+  JsonValidatorUrl = 'http://jsonlint.com';
 
 type
 
@@ -56,10 +84,8 @@ type
     procedure MenuItem5Click(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Label1Click(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-      Shift: TShiftState);
-    procedure tvKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+    procedure tvKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure Panel1Resize(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure btnOnlineJsonValidatorClick(Sender: TObject);
@@ -71,14 +97,14 @@ type
     procedure DisableGuiElements;
   public
     { Public declarations }
-    jm: TPkgJsonMapper;
+    jm                   : TPkgJsonMapper;
     FCheckVersionResponse: TObject;
-    FChanged: boolean;
-    //  0: Active
-    //  1: Terminating
-    //  >=2: Terminated
+    FChanged             : Boolean;
+    // 0: Active
+    // 1: Terminating
+    // >=2: Terminated
     FApplicationStatus: integer;
-    FUpdateCheckEvent: TEvent;
+    FUpdateCheckEvent : TEvent;
   end;
 
 var
@@ -90,10 +116,11 @@ implementation
 
 uses uSaveUnitForm,
 {$IFDEF MSWINDOWS}
-  Winapi.ShellAPI, Winapi.Windows;
+  Winapi.ShellAPI,
+  Winapi.Windows;
 {$ENDIF MSWINDOWS}
 {$IFDEF POSIX}
-  Posix.Stdlib;
+Posix.Stdlib;
 {$ENDIF POSIX}
 
 procedure TMainForm.btnOnlineJsonValidatorClick(Sender: TObject);
@@ -109,15 +136,14 @@ begin
       begin
         if AResult = mrYes then
           VisualizeClass;
-      end
-    )
+      end)
   else
     VisualizeClass;
 end;
 
 procedure TMainForm.DisableGuiElements;
 begin
-  edit2.Enabled := false;
+  Edit2.Enabled := false;
   Memo1.Enabled := false;
   tv.Enabled := false;
   tv.PopupMenu := nil;
@@ -141,19 +167,19 @@ begin
   if tv.Count = 0 then
     btnVisualizeClick(self);
 
-  jm.DestinationUnitName := edit2.Text;
+  jm.DestinationUnitName := Edit2.Text;
   SaveUnitForm.sd.FileName := jm.DestinationUnitName + '.pas';
 
   SaveUnitForm.Memo1.DeleteSelection;
   SaveUnitForm.Memo1.Text := jm.GenerateUnit;
   SaveUnitForm.Caption := 'Preview Delphi Unit - ' + SaveUnitForm.sd.FileName;
 
-  //  ShowModal bug - QC129552
-  //  The same is declared in the SaveUnitForm's OnShow event
-  SaveUnitForm.width := MainForm.Width - 50;
-  SaveUnitForm.height := MainForm.Height - 50;
-  SaveUnitForm.left := MainForm.Left + 25;
-  SaveUnitForm.top := MainForm.Top + 25;
+  // ShowModal bug - QC129552
+  // The same is declared in the SaveUnitForm's OnShow event
+  SaveUnitForm.width := MainForm.width - 50;
+  SaveUnitForm.height := MainForm.height - 50;
+  SaveUnitForm.left := MainForm.left + 25;
+  SaveUnitForm.top := MainForm.top + 25;
 
   SaveUnitForm.ShowModal;
 end;
@@ -177,32 +203,31 @@ begin
           TInterlocked.Increment(FApplicationStatus);
           DisableGuiElements;
 
-          label1.Text := 'Terminating application, please wait...';
+          Label1.Text := 'Terminating application, please wait...';
 
-          //  We start a termination task.
-          //  This way the main thread will not freeze
+          // We start a termination task.
+          // This way the main thread will not freeze
           TTask.Run(
             procedure
             begin
               FUpdateCheckEvent.WaitFor();
 
-              //  Indicate next stage
+              // Indicate next stage
               TInterlocked.Increment(FApplicationStatus);
 
-              //  We enqueue the handler
+              // We enqueue the handler
               TThread.Queue(nil,
                 procedure
                 begin
                   Close;
-                end
-              );
-            end
-          );
+                end);
+            end);
 
         end;
-      1: ;
-      else
-        CanClose := true;
+      1:
+        ;
+    else
+      CanClose := true;
     end;
   end;
 end;
@@ -219,7 +244,7 @@ begin
 
   jm := TPkgJsonMapper.Create(tv);
 
-  label1.Text := 'Checking for update...';
+  Label1.Text := 'Checking for update...';
 
   NewCheckForUpdateTask(
     procedure(ARelease: TObject)
@@ -227,26 +252,25 @@ begin
       FCheckVersionResponse := ARelease;
       if FCheckVersionResponse is TReleaseClass then
       begin
-        label1.StyleLookup := 'LabelLinkStyle';
-        label1.Text := 'Version ' + (FCheckVersionResponse as TReleaseClass).tag_name + ' is available! Click here to download!';
-        (label1.FindStyleResource('text') as TText).OnClick := label1Click;
-        label1.HitTest := true;
+        Label1.StyleLookup := 'LabelLinkStyle';
+        Label1.Text := 'Version ' + (FCheckVersionResponse as TReleaseClass).tag_name + ' is available! Click here to download!';
+        (Label1.FindStyleResource('text') as TText).OnClick := Label1Click;
+        Label1.HitTest := true;
       end
       else
         if FCheckVersionResponse is TErrorClass then
         begin
-          label1.StyleLookup := 'LabelErrorStyle';
-          label1.Text := 'Error checking for new version: ' + (FCheckVersionResponse as TErrorClass).message;
+          Label1.StyleLookup := 'LabelErrorStyle';
+          Label1.Text := 'Error checking for new version: ' + (FCheckVersionResponse as TErrorClass).message;
         end
         else
         begin
-          label1.StyleLookup := 'LabelGreenStyle';
-          label1.Text := 'Your version ' + FloatToStr(uUpdate.ProgramVersion, PointDsFormatSettings) + ' is up to date! For more information about JsonToDelphiClass click here!';
-          (label1.FindStyleResource('text') as TText).OnClick := label1Click;
+          Label1.StyleLookup := 'LabelGreenStyle';
+          Label1.Text := 'Your version ' + FloatToStr(uUpdate.ProgramVersion, PointDsFormatSettings) + ' is up to date! For more information about JsonToDelphiClass click here!';
+          (Label1.FindStyleResource('text') as TText).OnClick := Label1Click;
         end;
-        FUpdateCheckEvent.SetEvent;
-    end
-  );
+      FUpdateCheckEvent.SetEvent;
+    end);
 
 end;
 
@@ -257,11 +281,10 @@ begin
   FreeAndNil(FCheckVersionResponse);
 end;
 
-procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
-  var KeyChar: Char; Shift: TShiftState);
+procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   if Key = 27 then
-    close;
+    Close;
 end;
 
 procedure TMainForm.Label1Click(Sender: TObject);
@@ -273,30 +296,30 @@ begin
   end
   else
   begin
-  {$IFDEF MSWINDOWS}
+{$IFDEF MSWINDOWS}
     ShellExecute(0, 'OPEN', PChar(ProgramUrl), '', '', SW_SHOWNORMAL);
-  {$ENDIF MSWINDOWS}
-  {$IFDEF POSIX}
+{$ENDIF MSWINDOWS}
+{$IFDEF POSIX}
     _system(PAnsiChar('open ' + AnsiString(ProgramUrl)));
-  {$ENDIF POSIX}
+{$ENDIF POSIX}
   end;
 end;
 
 procedure TMainForm.Memo1DblClick(Sender: TObject);
 var
-  LTsl: TStringList;
+  LTsl      : TStringList;
   LJsonValue: TJSONValue;
 begin
   LTsl := TStringList.Create;
   try
-    LJsonValue := TJSONObject.ParseJSONValue(memo1.Text);
+    LJsonValue := TJSONObject.ParseJSONValue(Memo1.Text);
     try
       if LJsonValue <> nil then
         PrettyPrintJSON(LJsonValue, LTsl);
     finally
       LJsonValue.Free;
     end;
-    memo1.Text := LTsl.Text;
+    Memo1.Text := LTsl.Text;
   finally
     LTsl.Free;
   end;
@@ -305,7 +328,7 @@ end;
 procedure TMainForm.MenuItem3Click(Sender: TObject);
 var
   LString: string;
-  LField: TStubField;
+  LField : TStubField;
 begin
   LField := (Sender as TFmxObject).TagObject as TStubField;
   LString := InputBox('Rename Property ' + LField.Name, 'Enter new Property name', LField.Name);
@@ -320,7 +343,7 @@ end;
 procedure TMainForm.MenuItem5Click(Sender: TObject);
 var
   LString: string;
-  LClass: TStubClass;
+  LClass : TStubClass;
 begin
   LClass := (Sender as TFmxObject).TagObject as TStubClass;
   LString := InputBox('Rename Class ' + LClass.Name, 'Enter new Class name', LClass.PureClassName);
@@ -334,31 +357,31 @@ end;
 
 procedure TMainForm.MenuItem8Click(Sender: TObject);
 begin
-  {$IFDEF MSWINDOWS}
-    ShellExecute(0, 'OPEN', PChar(JsonValidatorUrl), '', '', SW_SHOWNORMAL);
-  {$ENDIF MSWINDOWS}
-  {$IFDEF POSIX}
-    _system(PAnsiChar('open ' + AnsiString(JsonValidatorUrl)));
-  {$ENDIF POSIX}
+{$IFDEF MSWINDOWS}
+  ShellExecute(0, 'OPEN', PChar(JsonValidatorUrl), '', '', SW_SHOWNORMAL);
+{$ENDIF MSWINDOWS}
+{$IFDEF POSIX}
+  _system(PAnsiChar('open ' + AnsiString(JsonValidatorUrl)));
+{$ENDIF POSIX}
 end;
 
 procedure TMainForm.Panel1Resize(Sender: TObject);
 begin
-  if Panel1.Width < 200 then
-    Panel1.Width := 200
+  if Panel1.width < 200 then
+    Panel1.width := 200
   else
-    if Panel1.Width > (MainForm.Width - 20) div 2 then
-      Panel1.Width := (MainForm.Width - 20) div 2;
+    if Panel1.width > (MainForm.width - 20) div 2 then
+      Panel1.width := (MainForm.width - 20) div 2;
 end;
 
 procedure TMainForm.MainPopupMenuPopup(Sender: TObject);
 var
-  LItem: TTreeViewItem;
+  LItem : TTreeViewItem;
   LPoint: TPointF;
 begin
   DisableMenuItems;
   MainPopupMenu.Items[0].Text := '---';
-  LPoint :=  tv.AbsoluteToLocal(ScreenToClient(MainPopupMenu.PopupPoint));
+  LPoint := tv.AbsoluteToLocal(ScreenToClient(MainPopupMenu.PopupPoint));
   LItem := tv.ItemByPoint(LPoint.X, LPoint.Y);
   if LItem <> nil then
     LItem.Select;
@@ -401,8 +424,7 @@ begin
     tv.Selected.IsExpanded := not tv.Selected.IsExpanded;
 end;
 
-procedure TMainForm.tvKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-  Shift: TShiftState);
+procedure TMainForm.tvKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   if ((KeyChar = #0) AND (Key = 113)) AND (tv.Selected <> nil) then
   begin
@@ -420,12 +442,12 @@ procedure TMainForm.VisualizeClass;
 begin
   FChanged := false;
 
-  jm.Parse(memo1.Text, 'Root');
+  jm.Parse(Memo1.Text, 'Root');
   jm.Visualize(tv, 'TreeViewItem1Style1');
 
-  //  Workarround for QC129540
-  Panel1.Width := Panel1.Width + 1;
-  Panel1.Width := Panel1.Width - 1;
+  // Workarround for QC129540
+  Panel1.width := Panel1.width + 1;
+  Panel1.width := Panel1.width - 1;
 end;
 
 end.
